@@ -16,14 +16,14 @@ import android.util.Patterns;
 import android.view.View;
 import android.widget.Toast;
 
-import com.ms.chatapp.R;
 import com.ms.chatapp.databinding.ActivitySignUpBinding;
-import com.ms.chatapp.models.UserRegister;
+import com.ms.chatapp.models.User;
+import com.ms.chatapp.repositories.user.UserRepository;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.util.regex.Pattern;
+import java.util.UUID;
 
 public class SignUpActivity extends AppCompatActivity {
 
@@ -50,14 +50,16 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     private void signUp() {
+        String userName = binding.inputUserName.getText().toString();
         String name = binding.inputName.getText().toString();
         String email = binding.inputEmail.getText().toString();
         String password = binding.inputPassword.getText().toString();
-        String confirmPassword = binding.inputConfirmPassword.getText().toString();
         String image = encodeImage;
 
-        UserRegister user = new UserRegister(name, email, password, confirmPassword, image);
-        Log.d("User", user.toString());
+        String userId = UUID.randomUUID().toString();
+        User user = new User(userId, userName, password, name, image, email);
+        UserRepository.getInstance().create(user);
+//        Log.d("User", user.toString());
     }
 
 
@@ -99,6 +101,9 @@ public class SignUpActivity extends AppCompatActivity {
     private Boolean isValidSignUpDetails() {
         if (encodeImage == null) {
             showToast("Select profile image");
+            return false;
+        }else if (binding.inputUserName.getText().toString().trim().isEmpty()) {
+            showToast("Enter your username");
             return false;
         } else if (binding.inputName.getText().toString().trim().isEmpty()) {
             showToast("Enter your name");
